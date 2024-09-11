@@ -2,6 +2,8 @@ const { faker } = require('@faker-js/faker')
 const fs = require('fs');
 const path = require('path');
 
+const productsPath = path.join(__dirname, '..', '/data/products.json')
+
 async function createFakeProducts(quantity = 20) {
   const products = []
 
@@ -15,10 +17,10 @@ async function createFakeProducts(quantity = 20) {
   }
 
   return new Promise((res, rej) => {
-    fs.writeFile(path.join(__dirname, '..', '/data/products.json'), JSON.stringify(products, null, 2), (err) => {
+    fs.writeFile(productsPath, JSON.stringify(products, null, 2), (err) => {
       if (err) {
         console.log('error', err);
-        rej(err)
+        rej([])
         throw new Error('Error writing data:', err)
       }
     })
