@@ -3,10 +3,20 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon index.js",
+    "unseed": "rm -r data",
+    "seed": "node src/seeder.js",
+    "dev": "node src/api/products/products.seeder.js && nodemon index.js",
     "start": "node index.js",
     "lint": "eslint",
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "_moduleAliases": {
+    "@data": "data",
+    "@seeders": "src/seeders",
+    "@helpers": "src/helpers",
+    "@routes": "src/routes",
+    "@products": "src/api/products",
+    "@categories": "src/api/categories"
   },
   "keywords": [],
   "author": "",
@@ -16,6 +26,7 @@
     "eslint": "^9.10.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
+    "module-alias": "^2.2.3",
     "prettier": "^3.3.3"
   },
   "dependencies": {
