@@ -40,7 +40,19 @@ class DataFileHandler {
         return `Because ${fileName} already exists, it won't be overwritten.`
       }
 
-      return await this.writeDataFile(pathName, fileName, content, contentType)
+      // add a metadata object to every json data file
+      const contentMetadata = {
+        lastItemId: content.length  - 1,
+        totalItems: content.length
+      }
+
+      // only content in data property will be shown to user. Metadata will ease up app related processing
+      const contentBody = {
+        data: content,
+        metadata: contentMetadata
+      }
+
+      return await this.writeDataFile(pathName, fileName, contentBody, contentType)
     } catch (error) {
       console.error(`Error handling ${jsonFileName}.json file:`)
       throw error
