@@ -1,20 +1,10 @@
 require('module-alias/register')
 const { faker } = require('@faker-js/faker')
-const fs = require('fs');
-const { createDataFile } = require('@helpers/createDataFile')
-const { writeDataFile } = require('@helpers/writeDataFile')
+const { DataFileHandler } = require('@helpers/dataFileHandler')
 
 async function createFakeProducts(quantity = 20) {
   try {
     const products = []
-
-    const { path, fileName, message, isFileNew } = await createDataFile('products.json')
-
-    console.log(message);
-
-    if (!isFileNew) {
-      return `Because ${fileName} already exists, it won't be overwritten.`
-    }
 
     for (let index = 0; index < quantity; index++) {
       products.push({
@@ -25,13 +15,11 @@ async function createFakeProducts(quantity = 20) {
       })
     }
 
-    await writeDataFile(path, fileName, products, 'Products')
-      .then(( message ) => console.log(message))
+    return await DataFileHandler.handleJsonFile('products', products, 'Products')
 
-    return 'Products successfully created.'
-
-  } catch (err) {
-    return new Error('Error creating fake products:', err)
+  } catch (error) {
+    console.error(`Error registering fake products:`)
+    throw error
   }
 }
 
