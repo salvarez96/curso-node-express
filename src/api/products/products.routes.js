@@ -1,12 +1,7 @@
 const { Router } = require('express');
 const productsList = require('@data/products.json');
-const { createFakeProducts } = require('@products/products.seeder');
-
-let products = [];
-
-(async () => {
-  products = !productsList.length ? await createFakeProducts() : require('@data/products.json')
-})()
+const fs = require('fs').promises;
+const { faker } = require('@faker-js/faker')
 
 const router = Router()
 
@@ -17,8 +12,8 @@ router.get('/', (req, res) => {
 
     if (size) {
       let filteredProducts = []
-      if (size < products.length) {
-        products.some((product, index) => {
+      if (size < productsList.metadata.totalItems) {
+        productsList.data.some((product, index) => {
           if (index < size) {
             filteredProducts.push(product)
             return false
@@ -26,7 +21,7 @@ router.get('/', (req, res) => {
           return true
         })
       } else {
-        filteredProducts = products
+        filteredProducts = productsList.data
       }
 
       if (filteredProducts) {
@@ -35,18 +30,24 @@ router.get('/', (req, res) => {
           .json(filteredProducts)
       } else {
         res
-          .status(200)
-          .json(`No products in the list.`)
+          .status(404)
+          .json({
+            code: 404,
+            message: `No products in the list.`
+          })
       }
     } else {
       res
         .status(200)
-        .json(products)
+        .json(productsList.data)
     }
   } catch (err) {
     res
       .status(500)
-      .send('There was a server error:', err)
+      .json({
+        code: 500,
+        message: 'There was a server error:', err
+      })
   }
 })
 
@@ -55,7 +56,7 @@ router.get('/:productId', (req, res) => {
   try {
     const { productId } = req.params
 
-    const product = products.find((product) => {
+    const product = productsList.data.find((product) => {
       return product.productId == productId
     })
 
@@ -66,17 +67,22 @@ router.get('/:productId', (req, res) => {
     } else {
       res
         .status(404)
-        .json(`No product with id: ${productId}`)
+        .json({
+          code: 404,
+          message: `No product with id: ${productId}`
+        })
     }
   } catch (err) {
     res
       .status(500)
-      .send('There was a server error:', err)
+      .json({
+        code: 500,
+        message: 'There was a server error:', err
+      })
   }
 })
 
-router.post('/', (req, res) => {
-  // req.body
+router.post('/', async (req, res) => {
   const body = req.body
   const propertyList = ['productName', 'productPrice']
 
@@ -89,7 +95,7 @@ router.post('/', (req, res) => {
   })
 
   if (propertiesNotIncluded.length) {
-    res
+    return res
       .status(400)
       .json({
         status: 400,
@@ -97,13 +103,40 @@ router.post('/', (req, res) => {
       })
   }
 
-  res
-    .status(200)
-    .json({
-      status: 200,
-      message: "Product created successfully",
-      data: body
-    })
+  try {
+    const productsDataPath = process.cwd() + '/data/products.json'
+    const productsData = JSON.parse(await fs.readFile(productsDataPath, {encoding: 'utf8'}))
+
+    productsData.metadata.lastItemId += 1
+    productsData.metadata.totalItems += 1
+
+    const cleanBody = {
+      'productId': productsData.metadata.lastItemId,
+      'productName': body.productName,
+      'productPrice': body.productPrice,
+      'productImage': faker.image.url()
+    }
+
+    productsData.data.push(cleanBody)
+
+    await fs.writeFile(productsDataPath, JSON.stringify(productsData, null, 2))
+
+    res
+      .status(200)
+      .json({
+        status: 200,
+        message: "Product created successfully",
+        data: cleanBody
+      })
+  } catch (err) {
+    res
+      .status(500)
+      .json({
+        code: 500,
+        message: 'Internal server error:', err
+      })
+    throw err
+  }
 })
 
 module.exports = router
