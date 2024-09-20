@@ -55,7 +55,6 @@ router.get('/:productId', (req, res) => {
   try {
     const { productId } = req.params
 
-
     const product = products.find((product) => {
       return product.productId == productId
     })
@@ -74,6 +73,37 @@ router.get('/:productId', (req, res) => {
       .status(500)
       .send('There was a server error:', err)
   }
+})
+
+router.post('/', (req, res) => {
+  // req.body
+  const body = req.body
+  const propertyList = ['productName', 'productPrice']
+
+  const propertiesNotIncluded = []
+
+  propertyList.forEach(property => {
+    if (!body[property]) {
+      propertiesNotIncluded.push(property)
+    }
+  })
+
+  if (propertiesNotIncluded.length) {
+    res
+      .status(400)
+      .json({
+        status: 400,
+        message: `The following properties are missing from the body: ${propertiesNotIncluded}`
+      })
+  }
+
+  res
+    .status(200)
+    .json({
+      status: 200,
+      message: "Product created successfully",
+      data: body
+    })
 })
 
 module.exports = router

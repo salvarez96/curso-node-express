@@ -7,7 +7,11 @@ const app = express()
 const port = 8080
 const IP = os.networkInterfaces().eth0[0].address
 
+// this middleware adds json parsing when Content-Type header specifies application/json
+app.use(express.json())
+
 routerApi(app)
+
 // ruta a la raíz del proyecto
 app.get('/', (req, res) => {
   res.send('Hola, mi server en express')
