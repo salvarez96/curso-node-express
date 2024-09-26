@@ -1,7 +1,8 @@
 const { Router } = require('express');
 const productsList = require('@data/products.json');
 const fs = require('fs').promises;
-const { faker } = require('@faker-js/faker')
+const { faker } = require('@faker-js/faker');
+const { DataFileHandler } = require('@helpers/dataFileHandler');
 
 const router = Router()
 
@@ -104,29 +105,22 @@ router.post('/', async (req, res) => {
   }
 
   try {
-    const productsDataPath = process.cwd() + '/data/products.json'
-    const productsData = JSON.parse(await fs.readFile(productsDataPath, {encoding: 'utf8'}))
-
-    productsData.metadata.lastItemId += 1
-    productsData.metadata.totalItems += 1
 
     const cleanBody = {
-      'productId': productsData.metadata.lastItemId,
       'productName': body.productName,
       'productPrice': body.productPrice,
       'productImage': faker.image.url()
     }
 
-    productsData.data.push(cleanBody)
-
-    await fs.writeFile(productsDataPath, JSON.stringify(productsData, null, 2))
+    const dataWriteResponse = await DataFileHandler.writeDataFile('products', cleanBody, { hasMetadata: true })
+    console.log(dataWriteResponse.message);
 
     res
       .status(200)
       .json({
         status: 200,
         message: "Product created successfully",
-        data: cleanBody
+        data: dataWriteResponse.data
       })
   } catch (err) {
     res
