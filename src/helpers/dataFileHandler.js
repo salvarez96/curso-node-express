@@ -1,3 +1,4 @@
+const { error } = require('console')
 const syncFs = require('fs')
 const fs = require('fs').promises
 
@@ -19,10 +20,37 @@ class DataFileHandler {
     }
   }
 
-  static async writeDataFile(pathName, fileName, content, contentType) {
+  static async writeDataFile(
+    fileName,
+    content,
+    options = {
+      contentType: '',
+      hasMetadata: false
+    }
+  ) {
     try {
-      await fs.writeFile(pathName, JSON.stringify(content, null, 2))
-      return `${contentType} created and registered successfully in data/${fileName}`
+      const filePath = process.cwd() + `/data/${fileName}.json`
+
+      if (options.hasMetadata) {
+        const data = await this.readDataFile(filePath)
+
+        data.metadata.lastItemId += 1
+        data.metadata.totalItems += 1
+
+        // add id to new item
+        content = { id: data.metadata.lastItemId, ...content }
+
+        data.data.push(content)
+
+        await fs.writeFile(filePath, JSON.stringify(data, null, 2))
+        return {
+          data: content,
+          message: `${fileName} has been successfully edited.`
+        }
+      }
+
+      await fs.writeFile(filePath, JSON.stringify(content, null, 2))
+      return `${options.contentType} created and registered successfully in data/${fileName}`
 
     } catch (error) {
       console.error(`Error writing data into ${fileName}`)
@@ -52,10 +80,20 @@ class DataFileHandler {
         metadata: contentMetadata
       }
 
-      return await this.writeDataFile(pathName, fileName, contentBody, contentType)
+      return await this.writeDataFile(jsonFileName, contentBody, { contentType: contentType })
     } catch (error) {
       console.error(`Error handling ${jsonFileName}.json file:`)
       throw error
+    }
+  }
+
+  static async readDataFile(pathName) {
+    try {
+      const data = await fs.readFile(pathName, { encoding: 'utf-8' })
+      return JSON.parse(data)
+    } catch (err) {
+      console.error(`Error trying to read data from ${pathName}:`, err);
+      throw err
     }
   }
 }
