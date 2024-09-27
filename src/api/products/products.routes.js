@@ -1,15 +1,13 @@
 const { Router } = require('express');
-const productsList = require('@data/products.json');
-const { faker } = require('@faker-js/faker');
-const { DataFileHandler } = require('@helpers/dataFileHandler');
-const { getDataPath } = require('@helpers/getDataPath')
+const { ProductsService } = require('@services/products/products.service')
 
 const router = Router()
-
+const productsService = new ProductsService()
 // ruta para enviar todos los productos al front
-router.get('/', (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const { size } = req.query
+    const productsList = await productsService.find()
 
     if (size) {
       let filteredProducts = []
@@ -28,7 +26,10 @@ router.get('/', (req, res) => {
       if (filteredProducts) {
         res
           .status(200)
-          .json(filteredProducts)
+          .json({
+            code: 200,
+            data: filteredProducts
+          })
       } else {
         res
           .status(204)
@@ -43,7 +44,8 @@ router.get('/', (req, res) => {
         .json({
           code: 200,
           message: 'Products found',
-          data: productsList.data
+          totalProducts: await productsList.metadata.totalItems,
+          data: await productsList.data,
         })
     }
   } catch (err) {
@@ -51,24 +53,26 @@ router.get('/', (req, res) => {
       .status(500)
       .json({
         code: 500,
-        message: 'There was a server error:', err
+        message: 'Error retrieving products:', err
       })
+    throw err
   }
 })
 
 // ruta para filtrar productos por id
-router.get('/:productId', (req, res) => {
-  try {
-    const { productId } = req.params
+router.get('/:productId', async (req, res) => {
+  const { productId } = req.params
 
-    const product = productsList.data.find((product) => {
-      return product.productId == productId
-    })
+  try {
+    const product = await productsService.find(productId)
 
     if (product) {
       res
         .status(200)
-        .json(product)
+        .json({
+          code: 200,
+          data: await product
+        })
     } else {
       res
         .status(404)
@@ -82,8 +86,9 @@ router.get('/:productId', (req, res) => {
       .status(500)
       .json({
         code: 500,
-        message: 'There was a server error:', err
+        message: `Error getting product with id: ${productId}`, err
       })
+    throw err
   }
 })
 
@@ -109,29 +114,21 @@ router.post('/', async (req, res) => {
   }
 
   try {
-
-    const cleanBody = {
-      'productName': body.productName,
-      'productPrice': body.productPrice,
-      'productImage': faker.image.url()
-    }
-
-    const dataWriteResponse = await DataFileHandler.writeDataFile('products', cleanBody, { hasMetadata: true })
-    console.log(dataWriteResponse.message);
+    const newProduct = await productsService.create(body)
 
     return res
       .status(201)
       .json({
         status: 201,
         message: "Product created successfully",
-        data: dataWriteResponse.data
+        data: await newProduct
       })
   } catch (err) {
     res
       .status(500)
       .json({
         code: 500,
-        message: 'Internal server error:', err
+        message: `Error creating new product`, err
       })
     throw err
   }
@@ -143,21 +140,9 @@ router.patch('/:productId', async (req, res) => {
   const acceptedPropertyList = ['productName', 'productPrice', 'productImage']
 
   try {
-    const productsFilePath = getDataPath('products')
-    const products = await DataFileHandler.readDataFile(productsFilePath)
+    const product = await productsService.update(productId, body, acceptedPropertyList)
 
-    const product = products.data.find(product => product.id == productId)
-    const productKey = products.data.findIndex(product => product.id == productId)
-
-    const acceptedNewProperties = {}
-
-    acceptedPropertyList.forEach(property => {
-      if (body[property]) {
-        acceptedNewProperties[property] = body[property]
-      }
-    })
-
-    if (!Object.keys(acceptedNewProperties).length) {
+    if (!product) {
       return res
         .status(400)
         .json({
@@ -166,19 +151,12 @@ router.patch('/:productId', async (req, res) => {
         })
     }
 
-    const updatedProduct = {...product, ...acceptedNewProperties}
-
-    products.data[productKey] = updatedProduct
-
-    const dataWriteResponse = await DataFileHandler.writeDataFile('products', products, { contentType: 'Product update' })
-    console.log(dataWriteResponse);
-
     return res
       .status(202)
       .json({
         status: 202,
         message: "Product updated successfully",
-        data: updatedProduct
+        data: await product
       })
   } catch (err) {
     res
@@ -195,12 +173,9 @@ router.delete('/:productId', async (req, res) => {
   const { productId }= req.params
 
   try {
-    const productsFilePath = getDataPath('products')
-    const products = await DataFileHandler.readDataFile(productsFilePath)
+    const product = await productsService.delete(productId)
 
-    const product = products.data.findIndex(product => product.id == productId)
-
-    if (product < 0) {
+    if (!product) {
       return res
           .status(404)
           .json({
@@ -209,18 +184,12 @@ router.delete('/:productId', async (req, res) => {
           })
     }
 
-    const deletedProduct = products.data.splice(product, 1)
-    products.metadata.totalItems -= 1
-
-    const dataWriteResponse = await DataFileHandler.writeDataFile('products', products, { contentType: 'Product delete' })
-    console.log(dataWriteResponse);
-
     return res
       .status(202)
       .json({
         code: 202,
         message: 'Product deleted successfully.',
-        data: deletedProduct
+        data: await product
       })
 
   } catch (err) {
