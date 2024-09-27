@@ -23,34 +23,13 @@ class DataFileHandler {
   static async writeDataFile(
     fileName,
     content,
-    options = {
-      contentType: '',
-      hasMetadata: false
-    }
+    contentType
   ) {
     try {
       const filePath = getDataPath(fileName)
 
-      if (options.hasMetadata) {
-        const data = await this.readDataFile(filePath)
-
-        data.metadata.lastItemId += 1
-        data.metadata.totalItems += 1
-
-        // add id to new item
-        content = { id: data.metadata.lastItemId, ...content }
-
-        data.data.push(content)
-
-        await fs.writeFile(filePath, JSON.stringify(data, null, 2))
-        return {
-          data: content,
-          message: `${fileName} has been successfully edited.`
-        }
-      }
-
       await fs.writeFile(filePath, JSON.stringify(content, null, 2))
-      return `${options.contentType} registered successfully in data/${fileName}.json`
+      return `${contentType} registered successfully in data/${fileName}.json`
 
     } catch (error) {
       console.error(`Error writing data into ${fileName}`)
@@ -70,7 +49,7 @@ class DataFileHandler {
 
       // add a metadata object to every json data file
       const contentMetadata = {
-        lastItemId: content.length  - 1,
+        lastItemId: content.length - 1,
         totalItems: content.length
       }
 
@@ -80,7 +59,7 @@ class DataFileHandler {
         metadata: contentMetadata
       }
 
-      return await this.writeDataFile(jsonFileName, contentBody, { contentType: contentType })
+      return await this.writeDataFile(jsonFileName, contentBody, contentType)
     } catch (error) {
       console.error(`Error handling ${jsonFileName}.json file:`)
       throw error
