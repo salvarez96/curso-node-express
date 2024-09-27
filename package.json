@@ -15,6 +15,7 @@
     "@seeders": "src/seeders",
     "@helpers": "src/helpers",
     "@routes": "src/routes",
+    "@services": "src/services",
     "@products": "src/api/products",
     "@categories": "src/api/categories"
   },
