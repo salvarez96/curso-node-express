@@ -1,6 +1,6 @@
-const { error } = require('console')
 const syncFs = require('fs')
 const fs = require('fs').promises
+const { getDataPath } = require('@helpers/getDataPath')
 
 class DataFileHandler {
 
@@ -29,7 +29,7 @@ class DataFileHandler {
     }
   ) {
     try {
-      const filePath = process.cwd() + `/data/${fileName}.json`
+      const filePath = getDataPath(fileName)
 
       if (options.hasMetadata) {
         const data = await this.readDataFile(filePath)
@@ -50,7 +50,7 @@ class DataFileHandler {
       }
 
       await fs.writeFile(filePath, JSON.stringify(content, null, 2))
-      return `${options.contentType} created and registered successfully in data/${fileName}`
+      return `${options.contentType} created and registered successfully in data/${fileName}.json`
 
     } catch (error) {
       console.error(`Error writing data into ${fileName}`)

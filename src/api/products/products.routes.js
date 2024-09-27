@@ -1,8 +1,8 @@
 const { Router } = require('express');
 const productsList = require('@data/products.json');
-const fs = require('fs').promises;
 const { faker } = require('@faker-js/faker');
 const { DataFileHandler } = require('@helpers/dataFileHandler');
+const { getDataPath } = require('@helpers/getDataPath')
 
 const router = Router()
 
@@ -128,6 +128,60 @@ router.post('/', async (req, res) => {
       .json({
         code: 500,
         message: 'Internal server error:', err
+      })
+    throw err
+  }
+})
+
+router.patch('/:productId', async (req, res) => {
+  const { productId } = req.params
+  const body = req.body
+  const acceptedPropertyList = ['productName', 'productPrice', 'productImage']
+
+  try {
+    const productsFilePath = getDataPath('products')
+    const products = await DataFileHandler.readDataFile(productsFilePath)
+
+    const product = products.data.find(product => product.id == productId)
+    const productKey = products.data.findIndex(product => product.id == productId)
+
+    const acceptedNewProperties = {}
+
+    acceptedPropertyList.forEach(property => {
+      if (body[property]) {
+        acceptedNewProperties[property] = body[property]
+      }
+    })
+
+    if (!Object.keys(acceptedNewProperties).length) {
+      return res
+        .status(200)
+        .json({
+          code: 200,
+          message: `Object with id ${productId} hasn't been updated due to unchanges in its specific properties.`
+        })
+    }
+
+    const updatedProduct = {...product, ...acceptedNewProperties}
+
+    products.data[productKey] = updatedProduct
+
+    const dataWriteResponse = await DataFileHandler.writeDataFile('products', products, { contentType: 'Product update' })
+    console.log(dataWriteResponse);
+
+    res
+      .status(200)
+      .json({
+        status: 200,
+        message: "Product updated successfully",
+        data: updatedProduct
+      })
+  } catch (err) {
+    res
+      .status(500)
+      .json({
+        code: 500,
+        message: `Error updating product with id ${productId}:`, err
       })
     throw err
   }
