@@ -31,16 +31,20 @@ router.get('/', (req, res) => {
           .json(filteredProducts)
       } else {
         res
-          .status(404)
+          .status(204)
           .json({
-            code: 404,
+            code: 204,
             message: `No products in the list.`
           })
       }
     } else {
       res
         .status(200)
-        .json(productsList.data)
+        .json({
+          code: 200,
+          message: 'Products found',
+          data: productsList.data
+        })
     }
   } catch (err) {
     res
@@ -116,9 +120,9 @@ router.post('/', async (req, res) => {
     console.log(dataWriteResponse.message);
 
     return res
-      .status(200)
+      .status(201)
       .json({
-        status: 200,
+        status: 201,
         message: "Product created successfully",
         data: dataWriteResponse.data
       })
@@ -155,9 +159,9 @@ router.patch('/:productId', async (req, res) => {
 
     if (!Object.keys(acceptedNewProperties).length) {
       return res
-        .status(200)
+        .status(400)
         .json({
-          code: 200,
+          code: 400,
           message: `Object with id ${productId} hasn't been updated due to unchanges in its specific properties.`
         })
     }
@@ -170,9 +174,9 @@ router.patch('/:productId', async (req, res) => {
     console.log(dataWriteResponse);
 
     return res
-      .status(200)
+      .status(202)
       .json({
-        status: 200,
+        status: 202,
         message: "Product updated successfully",
         data: updatedProduct
       })
@@ -198,9 +202,9 @@ router.delete('/:productId', async (req, res) => {
 
     if (product < 0) {
       return res
-          .status(400)
+          .status(404)
           .json({
-            code: 400,
+            code: 404,
             message: `Unable to delete product with id: ${productId}. The product doesn't exist.`
           })
     }
@@ -212,9 +216,9 @@ router.delete('/:productId', async (req, res) => {
     console.log(dataWriteResponse);
 
     return res
-      .status(200)
+      .status(202)
       .json({
-        code: 200,
+        code: 202,
         message: 'Product deleted successfully.',
         data: deletedProduct
       })
