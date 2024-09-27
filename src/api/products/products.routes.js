@@ -115,7 +115,7 @@ router.post('/', async (req, res) => {
     const dataWriteResponse = await DataFileHandler.writeDataFile('products', cleanBody, { hasMetadata: true })
     console.log(dataWriteResponse.message);
 
-    res
+    return res
       .status(200)
       .json({
         status: 200,
@@ -169,7 +169,7 @@ router.patch('/:productId', async (req, res) => {
     const dataWriteResponse = await DataFileHandler.writeDataFile('products', products, { contentType: 'Product update' })
     console.log(dataWriteResponse);
 
-    res
+    return res
       .status(200)
       .json({
         status: 200,
@@ -182,6 +182,49 @@ router.patch('/:productId', async (req, res) => {
       .json({
         code: 500,
         message: `Error updating product with id ${productId}:`, err
+      })
+    throw err
+  }
+})
+
+router.delete('/:productId', async (req, res) => {
+  const { productId }= req.params
+
+  try {
+    const productsFilePath = getDataPath('products')
+    const products = await DataFileHandler.readDataFile(productsFilePath)
+
+    const product = products.data.findIndex(product => product.id == productId)
+
+    if (product < 0) {
+      return res
+          .status(400)
+          .json({
+            code: 400,
+            message: `Unable to delete product with id: ${productId}. The product doesn't exist.`
+          })
+    }
+
+    const deletedProduct = products.data.splice(product, 1)
+    products.metadata.totalItems -= 1
+
+    const dataWriteResponse = await DataFileHandler.writeDataFile('products', products, { contentType: 'Product delete' })
+    console.log(dataWriteResponse);
+
+    return res
+      .status(200)
+      .json({
+        code: 200,
+        message: 'Product deleted successfully.',
+        data: deletedProduct
+      })
+
+  } catch (err) {
+    res
+      .status(500)
+      .json({
+        code: 500,
+        message: `Error deleting product with id: ${productId},`, err
       })
     throw err
   }

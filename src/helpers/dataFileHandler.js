@@ -50,7 +50,7 @@ class DataFileHandler {
       }
 
       await fs.writeFile(filePath, JSON.stringify(content, null, 2))
-      return `${options.contentType} created and registered successfully in data/${fileName}.json`
+      return `${options.contentType} registered successfully in data/${fileName}.json`
 
     } catch (error) {
       console.error(`Error writing data into ${fileName}`)
