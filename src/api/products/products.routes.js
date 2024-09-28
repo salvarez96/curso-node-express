@@ -143,12 +143,22 @@ router.patch('/:productId', async (req, res) => {
     const product = await productsService.update(productId, body, acceptedPropertyList)
 
     if (!product) {
-      return res
-        .status(400)
-        .json({
-          code: 400,
-          message: `Object with id ${productId} hasn't been updated due to unchanges in its specific properties.`
-        })
+      switch (product) {
+        case null:
+          return res
+            .status(400)
+            .json({
+              code: 400,
+              message: `Object with id ${productId} hasn't been updated due to unchanges in its specific properties.`
+            })
+        case false:
+          return res
+            .status(404)
+            .json({
+              code: 404,
+              message: `The product with id ${productId} doesn't exist.`
+            })
+      }
     }
 
     return res

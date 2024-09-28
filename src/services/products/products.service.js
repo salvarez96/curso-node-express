@@ -25,8 +25,8 @@ class ProductsService {
     }
 
     try {
-      this.products.metadata.lastItemId += 1
-      this.products.metadata.totalItems += 1
+      this.products.metadata.lastItemId++
+      this.products.metadata.totalItems++
 
       product = { id: this.products.metadata.lastItemId, ...cleanBody }
 
@@ -60,8 +60,13 @@ class ProductsService {
 
   async update(productId, updatedContent, acceptedPropertyList) {
     try {
-      const product = this.products.data.find(product => product.id == productId)
-      const productKey = this.products.data.findIndex(product => product.id == productId)
+      const productIndex = this.products.data.findIndex(product => product.id == productId)
+
+      if (productIndex < 0) {
+        return false
+      }
+
+      const product = this.products.data[productIndex]
 
       const acceptedNewProperties = {}
 
@@ -77,7 +82,7 @@ class ProductsService {
 
       const updatedProduct = {...product, ...acceptedNewProperties}
 
-      this.products.data[productKey] = updatedProduct
+      this.products.data[productIndex] = updatedProduct
 
       const dataWriteResponse = await DataFileHandler.writeDataFile('products', this.products, 'Product update')
       console.log(dataWriteResponse);
@@ -97,7 +102,7 @@ class ProductsService {
       }
 
       const deletedProduct = this.products.data.splice(productIndex, 1)
-      this.products.metadata.totalItems -= 1
+      this.products.metadata.totalItems--
 
       const dataWriteResponse = await DataFileHandler.writeDataFile('products', this.products, 'Product delete')
       console.log(dataWriteResponse);
