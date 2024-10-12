@@ -6,12 +6,11 @@ class ProductsService {
 
   constructor() {
     this.productsPath = getDataPath('products')
-    this.products = this.getProducts()
   }
 
   async getProducts () {
     try {
-      return this.products = await DataFileHandler.readDataFile(this.productsPath)
+      return await DataFileHandler.readDataFile(this.productsPath)
     } catch (err) {
       throw err
     }
@@ -25,14 +24,16 @@ class ProductsService {
     }
 
     try {
-      this.products.metadata.lastItemId++
-      this.products.metadata.totalItems++
+      const { data, metadata } = await this.getProducts()
 
-      product = { id: this.products.metadata.lastItemId, ...cleanBody }
+      metadata.lastItemId++
+      metadata.totalItems++
 
-      this.products.data.push(product)
+      product = { id: metadata.lastItemId, ...cleanBody }
 
-      await DataFileHandler.writeDataFile('products', this.products, 'New product')
+      data.push(product)
+
+      await DataFileHandler.writeDataFile('products', { data, metadata }, 'New product')
 
       return product
     } catch (err) {
@@ -42,15 +43,17 @@ class ProductsService {
 
   async find(productId = undefined) {
     try {
+      const products = await this.getProducts()
+
       productId = productId ? productId * 1 : undefined
       if (typeof productId === 'number' && productId >= 0) {
-        const product = await this.products.data.find((product) => {
+        const product = products.data.find((product) => {
           return product.id == productId
         })
 
         return product
       } else if (productId === undefined) {
-        return this.products
+        return products
       }
       return false
     } catch (err) {
@@ -60,15 +63,15 @@ class ProductsService {
 
   async update(productId, updatedContent, acceptedPropertyList) {
     try {
-      const productIndex = this.products.data.findIndex(product => product.id == productId)
+      const { data, metadata } = await this.getProducts()
+      const productIndex = data.findIndex(product => product.id == productId)
+      const acceptedNewProperties = {}
 
       if (productIndex < 0) {
         return false
       }
 
-      const product = this.products.data[productIndex]
-
-      const acceptedNewProperties = {}
+      const product = data[productIndex]
 
       acceptedPropertyList.forEach(property => {
         if (updatedContent[property]) {
@@ -80,11 +83,11 @@ class ProductsService {
         return null
       }
 
-      const updatedProduct = {...product, ...acceptedNewProperties}
+      const updatedProduct = { ...product, ...acceptedNewProperties }
 
-      this.products.data[productIndex] = updatedProduct
+      data[productIndex] = updatedProduct
 
-      const dataWriteResponse = await DataFileHandler.writeDataFile('products', this.products, 'Product update')
+      const dataWriteResponse = await DataFileHandler.writeDataFile('products', { data, metadata }, 'Product update')
       console.log(dataWriteResponse);
 
       return updatedProduct
@@ -95,16 +98,17 @@ class ProductsService {
 
   async delete(productId) {
     try {
-      const productIndex = this.products.data.findIndex(product => product.id == productId)
+      const { data, metadata } = await this.getProducts()
+      const productIndex = data.findIndex(product => product.id == productId)
 
       if (productIndex < 0) {
         return false
       }
 
-      const deletedProduct = this.products.data.splice(productIndex, 1)
-      this.products.metadata.totalItems--
+      const deletedProduct = data.splice(productIndex, 1)
+      metadata.totalItems--
 
-      const dataWriteResponse = await DataFileHandler.writeDataFile('products', this.products, 'Product delete')
+      const dataWriteResponse = await DataFileHandler.writeDataFile('products', { data, metadata }, 'Product delete')
       console.log(dataWriteResponse);
 
       return deletedProduct
