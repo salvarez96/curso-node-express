@@ -17,7 +17,8 @@
     "@routes": "src/routes",
     "@services": "src/services",
     "@products": "src/api/products",
-    "@categories": "src/api/categories"
+    "@categories": "src/api/categories",
+    "@middlewares": "src/middlewares"
   },
   "keywords": [],
   "author": "",
@@ -32,6 +33,7 @@
   },
   "dependencies": {
     "@faker-js/faker": "^9.0.0",
+    "@hapi/boom": "^10.0.1",
     "express": "^4.19.2"
   }
 }
