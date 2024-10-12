@@ -9,46 +9,29 @@ router.get('/', async (req, res, next) => {
   try {
     const { size } = req.query
     const productsList = await productsService.find()
+    let filteredProducts = []
 
-    if (size) {
-      let filteredProducts = []
-      if (size < productsList.metadata.totalItems) {
-        productsList.data.some((product, index) => {
-          if (index < size) {
-            filteredProducts.push(product)
-            return false
-          }
-          return true
-        })
-      } else {
-        filteredProducts = productsList.data
-      }
-
-      if (filteredProducts) {
-        res
-          .status(200)
-          .json({
-            statusCode: 200,
-            data: filteredProducts
-          })
-      } else {
-        res
-          .status(204)
-          .json({
-            statusCode: 204,
-            message: `No products in the list.`
-          })
-      }
+    if (size && size < productsList.metadata.totalItems) {
+      filteredProducts = productsList.data.splice(0, size)
     } else {
-      res
+      filteredProducts = productsList.data
+    }
+
+    if (filteredProducts.length) {
+      return res
         .status(200)
         .json({
           statusCode: 200,
-          message: 'Products found',
-          totalProducts: await productsList.metadata.totalItems,
-          data: await productsList.data,
+          totalProducts: filteredProducts.length,
+          data: filteredProducts
         })
     }
+    return res
+      .status(204)
+      .json({
+        statusCode: 204,
+        message: `No products in the list.`
+      })
   } catch (err) {
     next(err)
   }

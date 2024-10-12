@@ -12,7 +12,6 @@ function internalError(error, req, res, next) {
 
 function handleBoomErrors(error, req, res, next) {
   if (error.isBoom) {
-    console.error(error)
     return res.status(error.output.statusCode).json(error.output.payload)
   }
 
