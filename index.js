@@ -2,6 +2,7 @@ require('module-alias/register')
 const express = require('express');
 const routerApi = require('@routes/index.routes')
 const os = require('os');
+const { internalError, handleBoomErrors } = require('@middlewares/errorHandler');
 
 const app = express()
 const port = 8080
@@ -11,6 +12,8 @@ const IP = os.networkInterfaces().eth0[0].address
 app.use(express.json())
 
 routerApi(app)
+app.use(handleBoomErrors)
+app.use(internalError)
 
 // ruta a la raíz del proyecto
 app.get('/', (req, res) => {
