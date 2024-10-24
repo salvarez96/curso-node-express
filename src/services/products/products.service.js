@@ -61,11 +61,10 @@ class ProductsService {
     }
   }
 
-  async update(productId, updatedContent, acceptedPropertyList) {
+  async update(productId, updatedContent) {
     try {
       const { data, metadata } = await this.getProducts()
       const productIndex = data.findIndex(product => product.id == productId)
-      const acceptedNewProperties = {}
 
       if (productIndex < 0) {
         return false
@@ -73,24 +72,12 @@ class ProductsService {
 
       const product = data[productIndex]
 
-      acceptedPropertyList.forEach(property => {
-        if (updatedContent[property]) {
-          acceptedNewProperties[property] = updatedContent[property]
-        }
-      })
-
-      if (!Object.keys(acceptedNewProperties).length) {
-        return null
-      }
-
-      const updatedProduct = { ...product, ...acceptedNewProperties }
-
-      data[productIndex] = updatedProduct
+      data[productIndex] = { ...product, ...updatedContent}
 
       const dataWriteResponse = await DataFileHandler.writeDataFile('products', { data, metadata }, 'Product update')
       console.log(dataWriteResponse);
 
-      return updatedProduct
+      return data[productIndex]
     } catch (err) {
       throw err
     }
