@@ -1,11 +1,18 @@
 require('module-alias/register')
 const { createFakeProducts } = require('@products/products.seeder')
 const { createFakeCategories } = require('@categories/categories.seeder')
+const { createFakeUsers } = require('@users/users.seeder');
 
-createFakeProducts()
-  .then(( res ) => console.log(res))
-  .catch(( err ) => console.error(err))
+function executeSeeder(seeder) {
+  console.log(seeder);
+}
 
-createFakeCategories()
-  .then(( res ) => console.log(res))
-  .catch(( err ) => console.error(err))
+(async () => {
+  try {
+    executeSeeder(await createFakeProducts())
+    executeSeeder(await createFakeCategories())
+    executeSeeder(await createFakeUsers())
+  } catch (err) {
+    throw err
+  }
+})()
