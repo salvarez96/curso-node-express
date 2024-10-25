@@ -28,11 +28,6 @@ class UsersService {
     try {
       const { data, metadata } = await this.getUsers()
 
-      // identification number must be unique
-      const repeatedIdentificationNumber = data.find(user => user.userIdentificationNumber === cleanBody.userIdentificationNumber)
-      if (repeatedIdentificationNumber)
-        throw new EvalError(`Can't create user because the identification number ${repeatedIdentificationNumber} already exists.`)
-
       metadata.lastItemId++
       metadata.totalItems++
 
