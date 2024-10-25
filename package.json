@@ -18,6 +18,7 @@
     "@services": "src/services",
     "@products": "src/api/products",
     "@categories": "src/api/categories",
+    "@users": "src/api/users",
     "@middlewares": "src/middlewares"
   },
   "keywords": [],
