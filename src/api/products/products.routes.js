@@ -1,10 +1,17 @@
 const { Router } = require('express');
 const { ProductsService } = require('@services/products/products.service')
 const boom = require('@hapi/boom');
+const { validatorHandler } = require('@middlewares/validatorHandler');
+const {
+  createProductSchema,
+  updateProductSchema,
+  getProductSchema,
+  deleteProductSchema
+} = require('@products/products.schema')
 
 const router = Router()
 const productsService = new ProductsService()
-// ruta para enviar todos los productos al front
+
 router.get('/', async (req, res, next) => {
   try {
     const { size } = req.query
@@ -38,104 +45,101 @@ router.get('/', async (req, res, next) => {
 })
 
 // ruta para filtrar productos por id
-router.get('/:productId', async (req, res, next) => {
-  try {
-    const { productId } = req.params
-    const product = await productsService.find(productId)
+router.get('/:id',
+  validatorHandler(getProductSchema, 'params'),
+  async (req, res, next) => {
+    try {
+      const { id } = req.params
 
-    if (product) {
-      res
-        .status(200)
+      const product = await productsService.find(id)
+
+      if (product) {
+        res
+          .status(200)
+          .json({
+            statusCode: 200,
+            data: product
+          })
+      } else {
+        throw boom.notFound(`No product with id: ${id}`)
+      }
+    } catch (err) {
+      next(err)
+    }
+  }
+)
+
+router.post('/',
+  validatorHandler(createProductSchema, 'body'),
+  async (req, res, next) => {
+    try {
+      const { body } = req
+
+      const newProduct = await productsService.create(body)
+
+      return res
+        .status(201)
         .json({
-          statusCode: 200,
+          statusCode: 201,
+          message: "Product created successfully",
+          data: await newProduct
+        })
+    } catch (err) {
+      next(err)
+    }
+  }
+)
+
+router.patch('/:id',
+  validatorHandler(getProductSchema, 'params'),
+  validatorHandler(updateProductSchema, 'body'),
+  async (req, res, next) => {
+    try {
+      const { id } = req.params
+      const { body } = req
+
+      const product = await productsService.update(id, body)
+
+      if (!product) {
+        throw boom.notFound(`The product with id ${id} doesn't exist.`)
+      }
+
+      return res
+        .status(202)
+        .json({
+          statusCode: 202,
+          message: "Product updated successfully",
           data: await product
         })
-    } else {
-      throw boom.notFound(`No product with id: ${productId}`)
+    } catch (err) {
+      next(err)
     }
-  } catch (err) {
-    next(err)
   }
-})
+)
 
-router.post('/', async (req, res, next) => {
-  try {
-    const body = req.body
-    const propertyList = ['productName', 'productPrice']
-    const propertiesNotIncluded = []
+router.delete('/:id',
+  validatorHandler(deleteProductSchema, 'params'),
+  async (req, res, next) => {
+    try {
+      const { id } = req.params
 
-    propertyList.forEach(property => {
-      if (!body[property]) {
-        propertiesNotIncluded.push(property)
+      const product = await productsService.delete(id)
+
+      if (!product) {
+        throw boom.notFound(`Unable to delete product with id: ${id}. The product doesn't exist.`)
       }
-    })
 
-    if (propertiesNotIncluded.length) {
-      throw boom.badRequest(`The following properties are missing from the body: ${propertiesNotIncluded}`)
+      return res
+        .status(202)
+        .json({
+          code: 202,
+          message: 'Product deleted successfully.',
+          data: await product
+        })
+    } catch (err) {
+      next(err)
     }
-
-    const newProduct = await productsService.create(body)
-
-    return res
-      .status(201)
-      .json({
-        statusCode: 201,
-        message: "Product created successfully",
-        data: await newProduct
-      })
-  } catch (err) {
-    next(err)
   }
-})
-
-router.patch('/:productId', async (req, res, next) => {
-  try {
-    const { productId } = req.params
-    const body = req.body
-    const acceptedPropertyList = ['productName', 'productPrice', 'productImage']
-    const product = await productsService.update(productId, body, acceptedPropertyList)
-
-    if (!product) {
-      switch (product) {
-        case null:
-          throw boom.badRequest(`Object with id ${productId} hasn't been updated due to unchanges in its specific properties.`)
-        case false:
-          throw boom.notFound(`The product with id ${productId} doesn't exist.`)
-      }
-    }
-
-    return res
-      .status(202)
-      .json({
-        statusCode: 202,
-        message: "Product updated successfully",
-        data: await product
-      })
-  } catch (err) {
-    next(err)
-  }
-})
-
-router.delete('/:productId', async (req, res, next) => {
-  try {
-    const { productId }= req.params
-    const product = await productsService.delete(productId)
-
-    if (!product) {
-      throw boom.notFound(`Unable to delete product with id: ${productId}. The product doesn't exist.`)
-    }
-
-    return res
-      .status(202)
-      .json({
-        code: 202,
-        message: 'Product deleted successfully.',
-        data: await product
-      })
-
-  } catch (err) {
-    next(err)
-  }
-})
+)
 
 module.exports = router
