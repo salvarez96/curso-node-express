@@ -3,7 +3,7 @@ const Joi = require('joi');
 const id = Joi.number().integer()
 const userName = Joi.string().min(3).max(20)
 const userAge = Joi.number().positive().min(18).max(90)
-const userIdentificationNumber = Joi.integer()
+const userIdentificationNumber = Joi.number().integer().positive()
 const userBirthDate = Joi.date().max(`${2024 - 18}`)
 const userBirthCountry = Joi.string()
 

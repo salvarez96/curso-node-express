@@ -2,7 +2,7 @@ const Joi = require('joi');
 
 const id = Joi.number().integer()
 const categoryName = Joi.string().min(3).max(20)
-const categoryDescription = Joi.number().positive().min(1)
+const categoryDescription = Joi.string().min(10).max(100)
 const categoryImage = Joi.string().uri()
 
 const createCategorySchema = Joi.object({
