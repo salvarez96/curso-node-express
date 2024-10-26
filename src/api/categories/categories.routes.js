@@ -15,13 +15,13 @@ const categoriesService = new CategoriesService()
 router.get('/', async (req, res, next) => {
   try {
     const { size } = req.query
-    const categoriesList = await categoriesService.find()
+    const categories = await categoriesService.find()
     let filteredCategories = []
 
-    if (size && size < categoriesList.metadata.totalItems) {
-      filteredCategories = categoriesList.data.splice(0, size)
+    if (size && size < categories.metadata.totalItems) {
+      filteredCategories = categories.data.splice(0, size)
     } else {
-      filteredCategories = categoriesList.data
+      filteredCategories = categories.data
     }
 
     if (filteredCategories.length) {

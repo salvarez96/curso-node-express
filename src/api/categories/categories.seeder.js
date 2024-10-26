@@ -9,9 +9,9 @@ async function createFakeCategories(quantity = 5) {
     for (let index = 0; index < quantity; index++) {
       categories.push({
         "id": index,
-        "categoryName": faker.commerce.department(),
-        "categoryDescription": faker.commerce.productDescription(),
-        "categoryImage": faker.image.url(),
+        "name": faker.commerce.department(),
+        "description": faker.commerce.productDescription(),
+        "image": faker.image.url(),
       })
     }
 

@@ -33,11 +33,11 @@ async function createFakeUsers(quantity = 8) {
       })
       users.push({
         "id": index,
-        "userName": faker.person.fullName(),
-        "userAge": userAge,
-        "userIdentificationNumber": userIdentificationNumberGenerator(userAge),
-        "userBirthDate": `${2024 - userAge}-${generateRandomInteger(1, 12).parseToDoubleDigits()}-${generateRandomInteger(1, 30).parseToDoubleDigits()}`,
-        "userBirthCountry": faker.location.country(),
+        "name": faker.person.fullName(),
+        "age": userAge,
+        "identificationNumber": userIdentificationNumberGenerator(userAge),
+        "birthDate": `${2024 - userAge}-${generateRandomInteger(1, 12).parseToDoubleDigits()}-${generateRandomInteger(1, 30).parseToDoubleDigits()}`,
+        "birthCountry": faker.location.country(),
       })
     }
 

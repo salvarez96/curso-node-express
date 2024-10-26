@@ -9,9 +9,9 @@ async function createFakeProducts(quantity = 20) {
     for (let index = 0; index < quantity; index++) {
       products.push({
         "id": index,
-        "productName": faker.commerce.product(),
-        "productPrice": faker.commerce.price({ min: 10, max: 500 }) * 1,
-        "productImage": faker.image.url(),
+        "name": faker.commerce.product(),
+        "price": faker.commerce.price({ min: 10, max: 500 }) * 1,
+        "image": faker.image.url(),
       })
     }
 

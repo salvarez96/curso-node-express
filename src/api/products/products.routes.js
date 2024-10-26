@@ -15,13 +15,13 @@ const productsService = new ProductsService()
 router.get('/', async (req, res, next) => {
   try {
     const { size } = req.query
-    const productsList = await productsService.find()
+    const products = await productsService.find()
     let filteredProducts = []
 
-    if (size && size < productsList.metadata.totalItems) {
-      filteredProducts = productsList.data.splice(0, size)
+    if (size && size < products.metadata.totalItems) {
+      filteredProducts = products.data.splice(0, size)
     } else {
-      filteredProducts = productsList.data
+      filteredProducts = products.data
     }
 
     if (filteredProducts.length) {

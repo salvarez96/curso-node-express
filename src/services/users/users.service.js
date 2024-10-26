@@ -18,11 +18,11 @@ class UsersService {
 
   async create(user) {
     const cleanBody = {
-      'userName': user.userName,
-      'userAge': user.userAge,
-      'userIdentificationNumber': user.userIdentificationNumber,
-      'userBirthDate': user.userBirthDate,
-      'userBirthCountry': user.userBirthCountry,
+      'name': user.name,
+      'age': user.age,
+      'identificationNumber': user.identificationNumber,
+      'birthDate': user.birthDate,
+      'birthCountry': user.birthCountry,
     }
 
     try {

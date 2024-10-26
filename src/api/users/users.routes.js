@@ -15,13 +15,13 @@ const usersService = new UsersService()
 router.get('/', async (req, res, next) => {
   try {
     const { size } = req.query
-    const usersList = await usersService.find()
+    const users = await usersService.find()
     let filteredUsers = []
 
-    if (size && size < usersList.metadata.totalItems) {
-      filteredUsers = usersList.data.splice(0, size)
+    if (size && size < users.metadata.totalItems) {
+      filteredUsers = users.data.splice(0, size)
     } else {
-      filteredUsers = usersList.data
+      filteredUsers = users.data
     }
 
     if (filteredUsers.length) {
@@ -77,9 +77,9 @@ router.post('/',
       const { data } = await usersService.getUsers()
 
       // identification number must be unique
-      const userExists = data.find(user => user.userIdentificationNumber === body.userIdentificationNumber)
+      const userExists = data.find(user => user.identificationNumber === body.identificationNumber)
       if (userExists)
-        throw boom.badRequest(`Can't create user because the identification number: ${userExists.userIdentificationNumber} already exists.`)
+        throw boom.badRequest(`Can't create user because the identification number: ${userExists.identificationNumber} already exists.`)
 
       const newUser = await usersService.create(body)
 
@@ -106,9 +106,9 @@ router.patch('/:id',
       const { data } = await usersService.getUsers()
 
       // identification number must be unique
-      const userExists = data.find(user => user.userIdentificationNumber === body.userIdentificationNumber)
+      const userExists = data.find(user => user.identificationNumber === body.identificationNumber)
       if (userExists)
-        throw boom.badRequest(`Can't create user because the identification number: ${userExists.userIdentificationNumber} already exists.`)
+        throw boom.badRequest(`Can't create user because the identification number: ${userExists.identificationNumber} already exists.`)
 
       const user = await usersService.update(id, body)
 

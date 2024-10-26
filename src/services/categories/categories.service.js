@@ -18,9 +18,9 @@ class CategoriesService {
 
   async create(category) {
     const cleanBody = {
-      'categoryName': category.categoryName,
-      'categoryDescription': category.categoryDescription,
-      'categoryImage': faker.image.url()
+      'name': category.name,
+      'description': category.description,
+      'image': faker.image.url()
     }
 
     try {

@@ -1,26 +1,26 @@
 const Joi = require('joi');
 
 const id = Joi.number().integer()
-const userName = Joi.string().min(3).max(20)
-const userAge = Joi.number().positive().min(18).max(90)
-const userIdentificationNumber = Joi.number().integer().positive()
-const userBirthDate = Joi.date().max(`${2024 - 18}`)
-const userBirthCountry = Joi.string()
+const name = Joi.string().min(3).max(20)
+const age = Joi.number().positive().min(18).max(90)
+const identificationNumber = Joi.number().integer().positive()
+const birthDate = Joi.date().max(`${2024 - 18}`)
+const birthCountry = Joi.string()
 
 const createUserSchema = Joi.object({
-  userName: userName.required(),
-  userAge: userAge.required(),
-  userIdentificationNumber: userIdentificationNumber.required(),
-  userBirthDate: userBirthDate.required(),
-  userBirthCountry: userBirthCountry.required()
+  name: name.required(),
+  age: age.required(),
+  identificationNumber: identificationNumber.required(),
+  birthDate: birthDate.required(),
+  birthCountry: birthCountry.required()
 })
 
 const updateUserSchema = Joi.object({
-  userName: userName,
-  userAge: userAge,
-  userIdentificationNumber: userIdentificationNumber,
-  userBirthDate: userBirthDate,
-  userBirthCountry: userBirthCountry
+  name: name,
+  age: age,
+  identificationNumber: identificationNumber,
+  birthDate: birthDate,
+  birthCountry: birthCountry
 })
 
 const getUserSchema = Joi.object({

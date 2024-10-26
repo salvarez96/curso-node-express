@@ -18,9 +18,9 @@ class ProductsService {
 
   async create(product) {
     const cleanBody = {
-      'productName': product.productName,
-      'productPrice': product.productPrice,
-      'productImage': faker.image.url()
+      'name': product.name,
+      'price': product.price,
+      'image': faker.image.url()
     }
 
     try {
