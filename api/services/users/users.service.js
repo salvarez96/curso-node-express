@@ -1,5 +1,5 @@
 const { getDataPath } = require('@helpers/getDataPath')
-const { DataFileHandler } = require('../../helpers/dataFileHandler')
+const { DataFileHandler } = require('@helpers/dataFileHandler')
 const { faker } = require('@faker-js/faker');
 
 class UsersService {

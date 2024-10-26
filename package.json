@@ -4,22 +4,22 @@
   "main": "index.js",
   "scripts": {
     "unseed": "rm -r data",
-    "seed": "node src/seeder.js",
-    "dev": "node src/seeder.js && nodemon index.js",
-    "start": "node index.js",
+    "seed": "node api/seeder.js",
+    "dev": "node api/seeder.js && nodemon api/index.js",
+    "start": "node api/index.js",
     "lint": "eslint",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "_moduleAliases": {
     "@data": "data",
-    "@seeders": "src/seeders",
-    "@helpers": "src/helpers",
-    "@routes": "src/routes",
-    "@services": "src/services",
-    "@products": "src/api/products",
-    "@categories": "src/api/categories",
-    "@users": "src/api/users",
-    "@middlewares": "src/middlewares"
+    "@seeders": "api/seeders",
+    "@helpers": "api/helpers",
+    "@routes": "api/routes",
+    "@services": "api/services",
+    "@products": "api/products",
+    "@categories": "api/categories",
+    "@users": "api/users",
+    "@middlewares": "api/middlewares"
   },
   "keywords": [],
   "author": "",
